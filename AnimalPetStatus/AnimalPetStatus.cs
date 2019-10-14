@@ -10,6 +10,9 @@ using StardewValley;
 
 namespace AnimalPetStatus
 {
+    // TODO:
+    // BUG: Jingle doesn't play when petting the last animal to pet.
+
     /// <summary>The mod entry point.</summary>
     public class AnimalPetStatus : Mod
     {
@@ -31,6 +34,7 @@ namespace AnimalPetStatus
             Config = helper.ReadConfig<Configuration>();
 
             helper.Events.Display.RenderedHud += Display_RenderedHud;
+            helper.Events.GameLoop.DayStarted += GameLoop_DayStarted;
             helper.Events.Input.ButtonPressed += Input_ButtonPressed;
         }
 
@@ -59,6 +63,10 @@ namespace AnimalPetStatus
             }
 
             Drawer.DrawAnimalNamesInGame(_allAnimals);
+        }
+        private void GameLoop_DayStarted(object sender, DayStartedEventArgs e)
+        {
+            UpdateAnimalsToPet();
         }
 
         private void Input_ButtonPressed(object sender, ButtonPressedEventArgs e)
