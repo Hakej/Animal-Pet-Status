@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -7,7 +8,7 @@ using StardewValley;
 
 namespace AnimalPetStatus
 {
-    public abstract class AnimalPetStatusUI
+    public abstract class Drawer
     {
 
         private static readonly Color BorderColor = new Color(133, 54, 5);
@@ -18,18 +19,13 @@ namespace AnimalPetStatus
 
         private static readonly SpriteFont Font = Game1.dialogueFont;
 
-        private const int BorderSize = 4;
-
-        private const int UIWidth = 280;
-        private const int UIHeight = 45;
-
-        public static void DrawUIWindow(SpriteBatch spriteBatch, Vector2 position, int width, int height)
+        public static void DrawUIWindow(SpriteBatch spriteBatch, Vector2 position, int width, int height, int borderSize)
         {
             var gradientTexture = Utilities.CreateGradientTexture(spriteBatch.GraphicsDevice, GradientStartColor, GradientFinalColor, width, height);
 
-            var outerBorderRectangle = new Rectangle((int)position.X - BorderSize * 3, (int)position.Y - BorderSize * 3, width + BorderSize * 6, height + BorderSize * 6);
-            var middleBorderRectangle = new Rectangle((int)position.X - BorderSize * 2, (int)position.Y - BorderSize * 2, width + BorderSize * 4, height + BorderSize * 4);
-            var innerBorderRectangle = new Rectangle((int)position.X - BorderSize, (int)position.Y - BorderSize, width + BorderSize * 2, height + BorderSize * 2);
+            var outerBorderRectangle = new Rectangle((int)position.X - borderSize * 3, (int)position.Y - borderSize * 3, width + borderSize * 6, height + borderSize * 6);
+            var middleBorderRectangle = new Rectangle((int)position.X - borderSize * 2, (int)position.Y - borderSize * 2, width + borderSize * 4, height + borderSize * 4);
+            var innerBorderRectangle = new Rectangle((int)position.X - borderSize, (int)position.Y - borderSize, width + borderSize * 2, height + borderSize * 2);
             var backgroundRectangle = new Rectangle((int)position.X, (int)position.Y, width, height);
 
             spriteBatch.Draw(gradientTexture, outerBorderRectangle, BorderColor);
@@ -38,40 +34,29 @@ namespace AnimalPetStatus
             spriteBatch.Draw(gradientTexture, backgroundRectangle, BackgroundColor);
         }
 
-        public static void DrawMessage(SpriteBatch spriteBatch, Vector2 position, string message)
+        public static void DrawString(SpriteBatch spriteBatch, string message, Vector2 position, int width, int height, int borderSize)
         {
-            DrawUIWindow(spriteBatch, position, UIWidth, UIHeight);
-
-            var textRectangle = new Rectangle((int)position.X + 10, (int)position.Y + 5, UIWidth - 20, UIHeight - 10);
+            DrawUIWindow(spriteBatch, position, width, height, borderSize);
+            var textRectangle = new Rectangle((int)position.X + 10, (int)position.Y + 5, width - 20, height - 10);
             DrawStringFitInRectangle(spriteBatch, Font, message, textRectangle, Color.White, Color.Black, 1.5f);
         }
 
-        public static void DrawAnimalNames(SpriteBatch spriteBatch, Vector2 position, IEnumerable<FarmAnimal> farmAnimals)
+        public static void DrawStrings(SpriteBatch spriteBatch, IEnumerable<string> messages, Vector2 position, int width, int height, int borderSize)
         {
-            var totalHeight = UIHeight * farmAnimals.Count();
-            DrawUIWindow(spriteBatch, position, UIWidth, totalHeight);
+            var totalHeight = height * messages.Count();
+            DrawUIWindow(spriteBatch, position, width, totalHeight, borderSize);
 
             var i = 0;
-            foreach (var farmAnimal in farmAnimals)
+            foreach (var message in messages)
             {
-                var textRectangle = new Rectangle((int)position.X + 10, (int)position.Y + 5 + UIHeight * i, UIWidth - 20, UIHeight - 10);
+                var textRectangle = new Rectangle((int)position.X + 10, (int)position.Y + 5 + height * i, width - 20, height - 10);
 
-                // If there is an animal above the current element of the list, draw a line between them
+                // If there is another element before the current element of the list, draw a line between them
                 if (i - 1 >= 0)
                 {
-                    DrawLine(spriteBatch, textRectangle, Color.Black, 1, UIWidth);
+                    DrawLine(spriteBatch, textRectangle, Color.Black, 1, width);
                 }
-
-                var message = farmAnimal.shortDisplayType() + " " + farmAnimal.Name;
                 DrawStringFitInRectangle(spriteBatch, Font, message, textRectangle, Color.White, Color.Black, 1.5f);
-                /*
-            // TRIED TO DRAW A TEXTURE OF AN ANIMAL
-            var texture = new Texture2D(spriteBatch.GraphicsDevice, 50, 50);
-            Color[] colors = new Color[50 * 50];
-            texture.SetData(colors);
-
-            spriteBatch.Draw(texture, textRectangle, Color.White);
-            */
                 i++;
             }
         }

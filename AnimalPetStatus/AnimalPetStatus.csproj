@@ -43,8 +43,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AnimalPetStatusUI.cs" />
+    <Compile Include="Drawer.cs" />
     <Compile Include="AnimalPetStatus.cs" />
+    <Compile Include="Configuration.cs" />
+    <Compile Include="ModConstants.cs" />
+    <Compile Include="ModUI.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities.cs" />
   </ItemGroup>
