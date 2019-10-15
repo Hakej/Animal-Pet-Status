@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
@@ -12,6 +14,7 @@ namespace AnimalPetStatus
 {
     // TODO:
     // BUG: Jingle doesn't play when petting the last animal to pet.
+    // OPTIMIZE: Drawing the UI makes freeze the game each second.
 
     /// <summary>The mod entry point.</summary>
     public class AnimalPetStatus : Mod
@@ -19,23 +22,49 @@ namespace AnimalPetStatus
         public static Configuration Config;
 
         private bool _petHudEnabled = true;
-        private bool _allPetsPetHUDMessageShown;
 
-        private IEnumerable<FarmAnimal> _allAnimals;
-        private IEnumerable<FarmAnimal> _animalsToPet;
+        private ObservableCollection<FarmAnimal> _allAnimals = new ObservableCollection<FarmAnimal>();
+        private ObservableCollection<FarmAnimal> _animalsToPet = new ObservableCollection<FarmAnimal>();
 
-        /*********
-        ** Public methods
-        *********/
-        /// <summary>The mod entry point, called after the mod is first loaded.</summary>
-        /// <param name="helper">Provides simplified APIs for writing mods.</param>
-        public override void Entry(IModHelper helper)
+        private readonly List<string> _testListOfStrings = new List<string>
+        {
+            "Dupa",
+            "Cyce",
+            "Wadowice",
+            "Polska",
+            "Niemcy",
+            "Chuj",
+            "Rewolwer",
+            "Mizina",
+            "Jebać Jackala",
+            "Elo",
+            "Mordo",
+            "1337"
+        };
+
+    /*********
+    ** Public methods
+    *********/
+    /// <summary>The mod entry point, called after the mod is first loaded.</summary>
+    /// <param name="helper">Provides simplified APIs for writing mods.</param>
+    public override void Entry(IModHelper helper)
         {
             Config = helper.ReadConfig<Configuration>();
+
+            _animalsToPet.CollectionChanged += _animalsToPet_CollectionChanged;
 
             helper.Events.Display.RenderedHud += Display_RenderedHud;
             helper.Events.GameLoop.DayStarted += GameLoop_DayStarted;
             helper.Events.Input.ButtonPressed += Input_ButtonPressed;
+            helper.Events.Input.ButtonReleased += Input_ButtonReleased;
+        }
+
+        private static void _animalsToPet_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (!e.NewItems.Count.Equals(0)) return;
+
+            Game1.addHUDMessage(new HUDMessage("All pets have been pet! :)", 4));
+            PlayAllPetsPetJingle();
         }
 
         /*********
@@ -58,8 +87,9 @@ namespace AnimalPetStatus
             }
             else
             {
-                var animalNames = _animalsToPet.Select(farmAnimal => farmAnimal.Name);
-                Drawer.DrawStrings(e.SpriteBatch, animalNames, ModUI.Position, ModUI.Width, ModUI.Height, ModUI.BorderSize);
+                // var _testListOfStrings = _animalsToPet.Select(farmAnimal => farmAnimal.Name);
+
+                Drawer.DrawStrings(e.SpriteBatch, _testListOfStrings, ModUI.Position, ModUI.Width, ModUI.Height, ModUI.BorderSize);
             }
 
             Drawer.DrawAnimalNamesInGame(_allAnimals);
@@ -79,30 +109,22 @@ namespace AnimalPetStatus
                 case ModConstants.ToggleButton:
                     _petHudEnabled = !_petHudEnabled;
                     break;
-                case SButton.MouseRight:
-                    UpdateAnimalsToPet();
-                    break;
             }
+        }
+        private void Input_ButtonReleased(object sender, ButtonReleasedEventArgs e)
+        {
+            this.Monitor.Log(e.Button + " was released.", LogLevel.Info);
+            this.Monitor.Log("Is it an action button: " + e.Button.IsActionButton(), LogLevel.Info);
+            if (!e.Button.IsActionButton()) return;
+            UpdateAnimalsToPet();
         }
 
         private void UpdateAnimalsToPet()
         {
-            _allAnimals = Game1.getFarm().getAllFarmAnimals();
-
-            _animalsToPet = _allAnimals.Where(animal => !animal.wasPet.Value);
-
-            if (_animalsToPet.Any())
-            {
-                _allPetsPetHUDMessageShown = false;
-                return;
-            }
-
-            if (_allPetsPetHUDMessageShown)
-                return;
-
-            _allPetsPetHUDMessageShown = true;
-            Game1.addHUDMessage(new HUDMessage("All pets have been pet! :)", 4));
-            PlayAllPetsPetJingle();
+            var allAnimalsList = Game1.getFarm().getAllFarmAnimals();
+            _allAnimals = new ObservableCollection<FarmAnimal>(allAnimalsList);
+            var animalsToPetList = _allAnimals.Where(animal => !animal.wasPet.Value);
+            _animalsToPet = new ObservableCollection<FarmAnimal>(animalsToPetList);
         }
 
         private static void PlayAllPetsPetJingle()
