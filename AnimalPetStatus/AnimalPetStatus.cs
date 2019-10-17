@@ -56,12 +56,13 @@ namespace AnimalPetStatus
             helper.Events.Display.RenderedHud += Display_RenderedHud;
             helper.Events.GameLoop.DayStarted += GameLoop_DayStarted;
             helper.Events.Input.ButtonPressed += Input_ButtonPressed;
-            helper.Events.Input.ButtonReleased += Input_ButtonReleased;
         }
 
-        private static void _animalsToPet_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void _animalsToPet_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (!e.NewItems.Count.Equals(0)) return;
+
+            this.Monitor.Log("Collection has been changed:" + e.NewItems.Count, LogLevel.Info);
 
             Game1.addHUDMessage(new HUDMessage("All pets have been pet! :)", 4));
             PlayAllPetsPetJingle();
@@ -87,9 +88,10 @@ namespace AnimalPetStatus
             }
             else
             {
-                // var _testListOfStrings = _animalsToPet.Select(farmAnimal => farmAnimal.Name);
-
-                Drawer.DrawStrings(e.SpriteBatch, _testListOfStrings, ModUI.Position, ModUI.Width, ModUI.Height, ModUI.BorderSize);
+                // Game1.drawWithBorder("dupa", Color.Red, Color.AliceBlue, ModUI.Position);
+                Game1.drawObjectDialogue("test");
+                var animalNames = _animalsToPet.Select(farmAnimal => farmAnimal.Name);
+                // Drawer.DrawStrings(e.SpriteBatch, _testListOfStrings, ModUI.Position, ModUI.Width, ModUI.Height, ModUI.BorderSize);
             }
 
             Drawer.DrawAnimalNamesInGame(_allAnimals);
@@ -104,19 +106,18 @@ namespace AnimalPetStatus
             if (!Context.IsWorldReady)
                 return;
 
+            if (e.Button.IsActionButton())
+                UpdateAnimalsToPet();
+
             switch (e.Button)
             {
                 case ModConstants.ToggleButton:
                     _petHudEnabled = !_petHudEnabled;
                     break;
+                case SButton.P:
+                    Game1.drawDialogue(Game1.getCharacterFromName("Marnie"), "no elo kurwa jak tam twoja krowa zrogowaciala");
+                    break;
             }
-        }
-        private void Input_ButtonReleased(object sender, ButtonReleasedEventArgs e)
-        {
-            this.Monitor.Log(e.Button + " was released.", LogLevel.Info);
-            this.Monitor.Log("Is it an action button: " + e.Button.IsActionButton(), LogLevel.Info);
-            if (!e.Button.IsActionButton()) return;
-            UpdateAnimalsToPet();
         }
 
         private void UpdateAnimalsToPet()
