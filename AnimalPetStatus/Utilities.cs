@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using StardewValley;
 
 namespace AnimalPetStatus
 {
@@ -22,9 +23,18 @@ namespace AnimalPetStatus
                 var colorAmount = (float)i / colors.Length;
                 colors[i] = Color.Lerp(startColor, finalColor, colorAmount);
             }
+
             gradientTexture.SetData(colors);
 
             return gradientTexture;
+        }
+
+        public static void PlayAllPetsPetJingle()
+        {
+            DelayedAction.playSoundAfterDelay("drimkit4", 0);
+            DelayedAction.playSoundAfterDelay("drumkit1", 100);
+            DelayedAction.playSoundAfterDelay("drumkit2", 200);
+            DelayedAction.playSoundAfterDelay("Duck", 200);
         }
     }
 }

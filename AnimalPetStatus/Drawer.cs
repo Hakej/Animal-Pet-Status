@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
@@ -8,69 +9,107 @@ using StardewValley;
 
 namespace AnimalPetStatus
 {
-    public abstract class Drawer
+    public class Drawer
     {
-
         private static readonly Color BorderColor = new Color(133, 54, 5);
         private static readonly Color BorderFillColor = new Color(220, 123, 5);
         private static readonly Color BackgroundColor = new Color(245, 181, 101);
         private static readonly Color GradientStartColor = new Color(255, 197, 118);
         private static readonly Color GradientFinalColor = new Color(210, 140, 70);
-
         private static readonly SpriteFont Font = Game1.dialogueFont;
 
-        public static void DrawUIWindow(SpriteBatch spriteBatch, Vector2 position, int width, int height, int borderSize)
+        private Vector2 _position;
+        private int _width;
+        private int _height;
+        private int _borderSize;
+        private Texture2D _gradientTexture;
+
+        private readonly List<string> _testListOfStrings = new List<string>
         {
-            var gradientTexture = Utilities.CreateGradientTexture(spriteBatch.GraphicsDevice, GradientStartColor, GradientFinalColor, width, height);
+            "Dupa",
+            "Cyce",
+            "Wadowice",
+            "Polska",
+            "Niemcy",
+            "Chuj",
+            "Rewolwer",
+            "Mizina",
+            "Jebać Jackala",
+            "Elo",
+            "Mordo",
+            "1337"
+        };
 
-            var outerBorderRectangle = new Rectangle((int)position.X - borderSize * 3, (int)position.Y - borderSize * 3, width + borderSize * 6, height + borderSize * 6);
-            var middleBorderRectangle = new Rectangle((int)position.X - borderSize * 2, (int)position.Y - borderSize * 2, width + borderSize * 4, height + borderSize * 4);
-            var innerBorderRectangle = new Rectangle((int)position.X - borderSize, (int)position.Y - borderSize, width + borderSize * 2, height + borderSize * 2);
-            var backgroundRectangle = new Rectangle((int)position.X, (int)position.Y, width, height);
-
-            spriteBatch.Draw(gradientTexture, outerBorderRectangle, BorderColor);
-            spriteBatch.Draw(gradientTexture, middleBorderRectangle, BorderFillColor);
-            spriteBatch.Draw(gradientTexture, innerBorderRectangle, BorderColor);
-            spriteBatch.Draw(gradientTexture, backgroundRectangle, BackgroundColor);
+        public Drawer(SpriteBatch spriteBatch)
+        {
+            _position = new Vector2(ModUI.X, ModUI.Y);
+            _width = ModUI.Width;
+            _height = ModUI.Height;
+            _borderSize = ModUI.BorderSize;
         }
 
-        public static void DrawString(SpriteBatch spriteBatch, string message, Vector2 position, int width, int height, int borderSize)
+        public void UpdateGradient()
         {
-            DrawUIWindow(spriteBatch, position, width, height, borderSize);
-            var textRectangle = new Rectangle((int)position.X + 10, (int)position.Y + 5, width - 20, height - 10);
-            DrawStringFitInRectangle(spriteBatch, Font, message, textRectangle, Color.White, Color.Black, 1.5f);
+            _gradientTexture = Utilities.CreateGradientTexture(Game1.spriteBatch.GraphicsDevice, GradientStartColor, GradientFinalColor, _width, _height);
         }
 
-        public static void DrawStrings(SpriteBatch spriteBatch, IEnumerable<string> messages, Vector2 position, int width, int height, int borderSize)
+        public void DrawUIWindow()
         {
-            var totalHeight = height * messages.Count();
-            DrawUIWindow(spriteBatch, position, width, totalHeight, borderSize);
+            var outerBorderRectangle = new Rectangle((int)_position.X - _borderSize * 3, (int)_position.Y - _borderSize * 3, _width + _borderSize * 6, _height + _borderSize * 6);
+            var middleBorderRectangle = new Rectangle((int)_position.X - _borderSize * 2, (int)_position.Y - _borderSize * 2, _width + _borderSize * 4, _height + _borderSize * 4);
+            var innerBorderRectangle = new Rectangle((int)_position.X - _borderSize, (int)_position.Y - _borderSize, _width + _borderSize * 2, _height + _borderSize * 2);
+            var backgroundRectangle = new Rectangle((int)_position.X, (int)_position.Y, _width, _height);
+
+            Game1.spriteBatch.Draw(_gradientTexture, outerBorderRectangle, BorderColor);
+            Game1.spriteBatch.Draw(_gradientTexture, middleBorderRectangle, BorderFillColor);
+            Game1.spriteBatch.Draw(_gradientTexture, innerBorderRectangle, BorderColor);
+            Game1.spriteBatch.Draw(_gradientTexture, backgroundRectangle, BackgroundColor);
+        }
+
+        public void DrawString(string message)
+        {
+            DrawUIWindow();
+            var textRectangle = new Rectangle((int)_position.X + 10, (int)_position.Y + 5, _width - 20, _height - 10);
+            DrawStringFitInRectangle(message, textRectangle);
+        }
+
+        internal void DrawUI(ObservableCollection<FarmAnimal> notPetAnimals)
+        {
+            if (!notPetAnimals.Any())
+            {
+                DrawString("No animal to pet.");
+            }
+            else
+            {
+                // Game1.drawWithBorder("dupa", Color.Red, Color.AliceBlue, ModUI.Position);
+                // Game1.drawObjectDialogue("test");
+                var animalNames = notPetAnimals.Select(farmAnimal => farmAnimal.Name);
+                DrawStrings(_testListOfStrings);
+            }
+        }
+
+        public void DrawStrings(IEnumerable<string> messages)
+        {
+            _height = _height * messages.Count();
+
+            DrawUIWindow();
 
             var i = 0;
             foreach (var message in messages)
             {
-                var textRectangle = new Rectangle((int)position.X + 10, (int)position.Y + 5 + height * i, width - 20, height - 10);
+                var textRectangle = new Rectangle((int)_position.X + 10, (int)_position.Y + 5 + _height * i, _width - 20, _height - 10);
 
                 // If there is another element before the current element of the list, draw a line between them
                 if (i - 1 >= 0)
                 {
-                    DrawLine(spriteBatch, textRectangle, Color.Black, 1, width);
+                    DrawLine(Game1.spriteBatch, textRectangle, Color.Black, 1, _width);
                 }
-                DrawStringFitInRectangle(spriteBatch, Font, message, textRectangle, Color.White, Color.Black, 1.5f);
+                DrawStringFitInRectangle(message, textRectangle);
                 i++;
             }
         }
 
-        /// <summary>
-        /// Creates a pretty cool gradient texture!
-        /// Used for a background Texture!
-        /// </summary>
-        /// <param name="graphicsDevice">The graphics device of the current viewport</param>
-        /// <param name="width">The width of the current viewport</param>
-        /// <param name="height">The height of the current viewport</param>
-        /// A Texture2D with a gradient applied.
-
-        private static void DrawLine(SpriteBatch spriteBatch, Rectangle boundaries, Color lineColor, int lineThickness, int lineWidth)
+        private void DrawLine(SpriteBatch spriteBatch, Rectangle boundaries, Color lineColor, int lineThickness, int lineWidth)
         {
             var lineTexture = new Texture2D(spriteBatch.GraphicsDevice, lineWidth, lineThickness);
             var colors = new Color[lineWidth];
@@ -97,9 +136,12 @@ namespace AnimalPetStatus
         /// If the string is not a perfect match inside of the boundaries (which it would rarely be), then
         /// the string will be absolutely-centered inside of the boundaries.
         /// </summary>
-        public static void DrawStringFitInRectangle(SpriteBatch spriteBatch, SpriteFont font, string strToDraw, Rectangle boundaries, Color stringColor, Color stringShadowColor, float shadowScale)
+        public void DrawStringFitInRectangle(string strToDraw, Rectangle boundaries)
         {
-            var size = font.MeasureString(strToDraw);
+            var size = Font.MeasureString(strToDraw);
+            var color = Color.White;
+            var shadowColor = Color.Black;
+            var shadowScale = 1.5f;
 
             var xScale = (boundaries.Width / size.X);
             var yScale = (boundaries.Height / size.Y);
@@ -123,16 +165,16 @@ namespace AnimalPetStatus
             const SpriteEffects spriteEffects = new SpriteEffects();
 
             // Draw shadow to the string
-            spriteBatch.DrawString(font, strToDraw, position + new Vector2(shadowScale * scale, shadowScale * scale), stringShadowColor, rotation, spriteOrigin, scale, spriteEffects, spriteLayer);
-            spriteBatch.DrawString(font, strToDraw, position + new Vector2(-shadowScale * scale, shadowScale * scale), stringShadowColor, rotation, spriteOrigin, scale, spriteEffects, spriteLayer);
-            spriteBatch.DrawString(font, strToDraw, position + new Vector2(-shadowScale * scale, -shadowScale * scale), stringShadowColor, rotation, spriteOrigin, scale, spriteEffects, spriteLayer);
-            spriteBatch.DrawString(font, strToDraw, position + new Vector2(shadowScale * scale, -shadowScale * scale), stringShadowColor, rotation, spriteOrigin, scale, spriteEffects, spriteLayer);
+            Game1.spriteBatch.DrawString(Font, strToDraw, position + new Vector2(shadowScale * scale, shadowScale * scale), shadowColor, rotation, spriteOrigin, scale, spriteEffects, spriteLayer);
+            Game1.spriteBatch.DrawString(Font, strToDraw, position + new Vector2(-shadowScale * scale, shadowScale * scale), shadowColor, rotation, spriteOrigin, scale, spriteEffects, spriteLayer);
+            Game1.spriteBatch.DrawString(Font, strToDraw, position + new Vector2(-shadowScale * scale, -shadowScale * scale), shadowColor, rotation, spriteOrigin, scale, spriteEffects, spriteLayer);
+            Game1.spriteBatch.DrawString(Font, strToDraw, position + new Vector2(shadowScale * scale, -shadowScale * scale), shadowColor, rotation, spriteOrigin, scale, spriteEffects, spriteLayer);
 
-            // Draw the string to the sprite batch!
-            spriteBatch.DrawString(font, strToDraw, position, stringColor, rotation, spriteOrigin, scale, spriteEffects, spriteLayer);
-        } // end DrawStringFitInRectangle()
+            // Draw the string to the sprite batch
+            Game1.spriteBatch.DrawString(Font, strToDraw, position, color, rotation, spriteOrigin, scale, spriteEffects, spriteLayer);
+        }
 
-        public static void DrawAnimalNamesInGame(IEnumerable<FarmAnimal> animals)
+        public void DrawAnimalNamesInGame(IEnumerable<FarmAnimal> animals)
         {
             foreach (var animal in animals)
             {
@@ -145,7 +187,7 @@ namespace AnimalPetStatus
                 var textRectangle = new Rectangle((int)position.X - 25, (int)position.Y + 135, width, height);
 
                 var color = animal.wasPet.Value ? Color.Green : Color.White;
-                DrawStringFitInRectangle(Game1.spriteBatch, Game1.tinyFont, animal.Name, textRectangle, color, Color.Black, 1.0f);
+                DrawStringFitInRectangle(animal.Name, textRectangle);
             }
         }
     }
