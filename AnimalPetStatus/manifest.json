@@ -5,6 +5,6 @@
   "Description": "Shows which animal have you already pet",
   "UniqueID": "hakej.animalpetstatus",
   "EntryDll": "AnimalPetStatus.dll",
-  "MinimumApiVersion": "2.10.0",
+  "MinimumApiVersion": "3.0.0",
   "UpdateKeys": []
 }
