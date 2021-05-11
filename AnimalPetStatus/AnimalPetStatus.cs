@@ -48,11 +48,12 @@ namespace AnimalPetStatus
             if (!Show)
                 return;
 
-            var farmAnimals = Game1.getFarm().getAllFarmAnimals()
+            var notPetAnimals = Game1.getFarm().getAllFarmAnimals()
                 .Where(a => !a.wasPet)
-                .Select(a => a.Name);
+                .OrderBy(a => a.Name);
 
-            Drawer.DrawStringsWithBackground(farmAnimals, Position, textColor, BackgroundTop, BackgroundMiddle, BackgroundBottom);
+            //Drawer.DrawStringsWithBackground(notPetAnimals, Position, textColor, BackgroundTop, BackgroundMiddle, BackgroundBottom);
+            Drawer.DrawAnimalNamesWithBackground(notPetAnimals, Position, BackgroundTop, BackgroundMiddle, BackgroundBottom);
         }
 
         private void OnButtonPressed(object sender, ButtonPressedEventArgs e)

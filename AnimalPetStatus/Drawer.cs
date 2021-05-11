@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using StardewValley;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -56,6 +57,42 @@ namespace AnimalPetStatus
             }
 
             _spriteBatch.Draw(backgroundBottom, drawingRectangle);
+        }
+
+        public void DrawAnimalNamesWithBackground(IEnumerable<FarmAnimal> animals, Vector2 position, Texture2D backgroundTop, Texture2D backgroundMiddle, Texture2D backgroundBottom)
+        {
+            _spriteBatch.Draw(backgroundTop, position);
+
+            var middlePosition = position;
+            middlePosition.Y += backgroundTop.Height;
+
+            var drawingRectangle = new Rectangle((int)middlePosition.X, (int)middlePosition.Y, backgroundMiddle.Width, backgroundMiddle.Height);
+
+            foreach (var a in animals)
+            {
+                _spriteBatch.Draw(backgroundMiddle, drawingRectangle);
+
+                var color = GetTextColorForAnimal(a);
+
+                DrawStringAligned(a.Name, drawingRectangle, color, Alignment.Center);
+
+                drawingRectangle.Y += backgroundMiddle.Height;
+            }
+
+            _spriteBatch.Draw(backgroundBottom, drawingRectangle);
+        }
+
+        private Color GetTextColorForAnimal(FarmAnimal animal)
+        {
+            if (animal.currentLocation == Game1.player.currentLocation)
+            {
+                return Color.Black;
+            }
+            else
+            {
+                return Color.Gray;
+            }
+            
         }
 
         [Flags]
