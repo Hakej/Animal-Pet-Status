@@ -133,26 +133,5 @@ namespace AnimalPetStatus
 
             _spriteBatch.DrawString(_spriteFont, text, pos, color, origin);
         }
-
-        private void DrawTextureAligned(Texture2D texture, Rectangle bounds, Color color, Alignment align)
-        {
-            Vector2 size = new Vector2(texture.Width, texture.Height);
-            Vector2 pos = new Vector2(bounds.Center.X, bounds.Center.Y);
-            Vector2 origin = size * 0.5f;
-
-            if (align.HasFlag(Alignment.Left))
-                origin.X += bounds.Width / 2 - size.X / 2;
-
-            if (align.HasFlag(Alignment.Right))
-                origin.X -= bounds.Width / 2 - size.X / 2;
-
-            if (align.HasFlag(Alignment.Top))
-                origin.Y += bounds.Height / 2 - size.Y / 2;
-
-            if (align.HasFlag(Alignment.Bottom))
-                origin.Y -= bounds.Height / 2 - size.Y / 2;
-
-            _spriteBatch.Draw(texture, origin, Color.White);
-        }
     }
 }

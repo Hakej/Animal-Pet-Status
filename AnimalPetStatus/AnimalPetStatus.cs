@@ -13,7 +13,9 @@ namespace AnimalPetStatus
     {
         // MOD SETTINGS
         public bool Show = true;
+        public bool IsMoving = false;
         public SButton ToggleButton = SButton.P;
+        public SButton MoveButton = SButton.L;
         public Vector2 Position = new Vector2(10, 10);
 
         // TEXT
@@ -40,6 +42,18 @@ namespace AnimalPetStatus
             helper.Events.GameLoop.GameLaunched += GameLaunched;
             helper.Events.GameLoop.DayStarted += DayStarted;
             helper.Events.Input.ButtonReleased += OnButtonReleased;
+            helper.Events.Input.CursorMoved += CursorMoved;
+        }
+
+        private void CursorMoved(object sender, CursorMovedEventArgs e)
+        {
+            if (!Show)
+                return;
+
+            if (!IsMoving)
+                return;
+
+            Position = e.NewPosition.AbsolutePixels;
         }
 
         private void DayStarted(object sender, DayStartedEventArgs e)
@@ -56,6 +70,11 @@ namespace AnimalPetStatus
                     WereAllAnimalsPetToday = true;
                     Notificator.NotifyWithJingle();
                 }
+            }
+
+            if (e.Button == MoveButton)
+            {
+                IsMoving = false;
             }
         }
 
@@ -86,6 +105,9 @@ namespace AnimalPetStatus
 
             if (e.Button == ToggleButton)
                 Show = !Show;
+
+            if (e.Button == MoveButton)
+                IsMoving = true;
         }
 
 
