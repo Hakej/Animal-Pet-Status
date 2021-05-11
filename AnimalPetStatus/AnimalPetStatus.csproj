@@ -46,6 +46,7 @@
     <Compile Include="Drawer.cs" />
     <Compile Include="AnimalPetStatus.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="Notificator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

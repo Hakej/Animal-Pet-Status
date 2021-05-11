@@ -27,6 +27,8 @@ namespace AnimalPetStatus
         public Texture2D BackgroundMiddle;
         public Texture2D BackgroundBottom;
 
+        public bool WereAllAnimalsPetToday = false;
+
         public override void Entry(IModHelper helper)
         {
             BackgroundTop = helper.Content.Load<Texture2D>("Assets/background_top.png", ContentSource.ModFolder);
@@ -36,6 +38,25 @@ namespace AnimalPetStatus
             helper.Events.Input.ButtonPressed += OnButtonPressed;
             helper.Events.Display.RenderedHud += OnRenderedHud;
             helper.Events.GameLoop.GameLaunched += GameLaunched;
+            helper.Events.GameLoop.DayStarted += DayStarted;
+            helper.Events.Input.ButtonReleased += OnButtonReleased;
+        }
+
+        private void DayStarted(object sender, DayStartedEventArgs e)
+        {
+            WereAllAnimalsPetToday = false;
+        }
+
+        private void OnButtonReleased(object sender, ButtonReleasedEventArgs e)
+        {
+            if (e.Button.IsActionButton())
+            {
+                if (!IsAnyAnimalNotPet() && !WereAllAnimalsPetToday)
+                {
+                    WereAllAnimalsPetToday = true;
+                    Notificator.NotifyWithJingle();
+                }
+            }
         }
 
         private void GameLaunched(object sender, GameLaunchedEventArgs e)
@@ -52,7 +73,6 @@ namespace AnimalPetStatus
                 .Where(a => !a.wasPet)
                 .OrderBy(a => a.Name);
 
-            //Drawer.DrawStringsWithBackground(notPetAnimals, Position, textColor, BackgroundTop, BackgroundMiddle, BackgroundBottom);
             Drawer.DrawAnimalNamesWithBackground(notPetAnimals, Position, BackgroundTop, BackgroundMiddle, BackgroundBottom);
         }
 
@@ -63,6 +83,12 @@ namespace AnimalPetStatus
 
             if (e.Button == ToggleButton)
                 Show = !Show;
+        }
+
+
+        private bool IsAnyAnimalNotPet()
+        {
+            return Game1.getFarm().getAllFarmAnimals().Any(a => !a.wasPet);
         }
     }
 }
