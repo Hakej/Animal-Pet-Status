@@ -109,6 +109,9 @@ namespace AnimalPetStatus
             if (!DoesFarmHasAnyAnimals())
                 return;
 
+            if (!Game1.player.currentLocation.isFarm)
+                return;
+
             var notPetAnimals = Game1.getFarm().getAllFarmAnimals()
                 .Where(a => !a.wasPet)
                 .OrderBy(a => a.Name);
