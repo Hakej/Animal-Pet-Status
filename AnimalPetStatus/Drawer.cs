@@ -80,10 +80,25 @@ namespace AnimalPetStatus
                 var texture = s.Texture;
                 var iconDrawingRectangle = new Rectangle(drawingRectangle.X + BORDER_OFFSET, drawingRectangle.Y, ANIMAL_ICON_SIZE, ANIMAL_ICON_SIZE);
 
+                SpriteEffects spriteEffect;
+
+                if (s.textureUsesFlippedRightForLeft && a.FacingDirection == 3)
+                {
+                    spriteEffect = SpriteEffects.FlipHorizontally;    
+                }
+                else
+                {
+                    spriteEffect = SpriteEffects.None;
+                }
+
                 _spriteBatch.Draw(texture,
                     iconDrawingRectangle,
                     s.SourceRect,
-                    Color.White);
+                    Color.White, 
+                    0, 
+                    new Vector2(0, 0),
+                    spriteEffect,
+                    0);
 
                 drawingRectangle.X += BORDER_OFFSET + ANIMAL_ICON_SIZE + SPACE_BETWEEN_ICON_AND_NAME;
 
