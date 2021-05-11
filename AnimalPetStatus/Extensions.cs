@@ -25,6 +25,11 @@ namespace AnimalPetStatus
             spriteBatch.DrawString(font, text, pos, Color.White, 0, origin, 1, SpriteEffects.None, 0);
         }
 
+        public static void DrawString(this SpriteBatch spriteBatch, SpriteFont font, string text, Vector2 pos, Color color, Vector2 origin)
+        {
+            spriteBatch.DrawString(font, text, pos, color, 0, origin, 1, SpriteEffects.None, 0);
+        }
+
         public static void DrawString(this SpriteBatch spriteBatch, SpriteFont font, string text, Vector2 position)
         {
             spriteBatch.DrawString(font, text, position, Color.White);
