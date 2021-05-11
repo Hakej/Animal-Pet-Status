@@ -11,6 +11,10 @@ namespace AnimalPetStatus
 {
     public class Drawer
     {
+        private const int BORDER_OFFSET = 30;
+        private const int ANIMAL_ICON_SIZE = 25;
+        private const int SPACE_BETWEEN_ICON_AND_NAME = 5;
+
         private static SpriteBatch _spriteBatch;
         private static SpriteFont _spriteFont;
 
@@ -72,9 +76,21 @@ namespace AnimalPetStatus
             {
                 _spriteBatch.Draw(backgroundMiddle, drawingRectangle);
 
-                var color = GetTextColorForAnimal(a);
+                var s = a.Sprite;
+                var texture = s.Texture;
+                var iconDrawingRectangle = new Rectangle(drawingRectangle.X + BORDER_OFFSET, drawingRectangle.Y, ANIMAL_ICON_SIZE, ANIMAL_ICON_SIZE);
 
-                DrawStringAligned(a.Name, drawingRectangle, color, Alignment.Center);
+                _spriteBatch.Draw(texture,
+                    iconDrawingRectangle,
+                    s.SourceRect,
+                    Color.White);
+
+                drawingRectangle.X += BORDER_OFFSET + ANIMAL_ICON_SIZE + SPACE_BETWEEN_ICON_AND_NAME;
+
+                var color = GetTextColorForAnimal(a);
+                DrawStringAligned(a.Name, drawingRectangle, color, Alignment.Left);
+
+                drawingRectangle.X -= BORDER_OFFSET + ANIMAL_ICON_SIZE + SPACE_BETWEEN_ICON_AND_NAME;
 
                 drawingRectangle.Y += backgroundMiddle.Height;
             }
@@ -91,8 +107,7 @@ namespace AnimalPetStatus
             else
             {
                 return Color.Gray;
-            }
-            
+            }            
         }
 
         [Flags]
@@ -117,6 +132,27 @@ namespace AnimalPetStatus
                 origin.Y -= bounds.Height / 2 - size.Y / 2;
 
             _spriteBatch.DrawString(_spriteFont, text, pos, color, origin);
+        }
+
+        private void DrawTextureAligned(Texture2D texture, Rectangle bounds, Color color, Alignment align)
+        {
+            Vector2 size = new Vector2(texture.Width, texture.Height);
+            Vector2 pos = new Vector2(bounds.Center.X, bounds.Center.Y);
+            Vector2 origin = size * 0.5f;
+
+            if (align.HasFlag(Alignment.Left))
+                origin.X += bounds.Width / 2 - size.X / 2;
+
+            if (align.HasFlag(Alignment.Right))
+                origin.X -= bounds.Width / 2 - size.X / 2;
+
+            if (align.HasFlag(Alignment.Top))
+                origin.Y += bounds.Height / 2 - size.Y / 2;
+
+            if (align.HasFlag(Alignment.Bottom))
+                origin.Y -= bounds.Height / 2 - size.Y / 2;
+
+            _spriteBatch.Draw(texture, origin, Color.White);
         }
     }
 }
