@@ -53,7 +53,6 @@ namespace AnimalPetStatus
                 .Select(a => a.Name);
 
             Drawer.DrawStringsWithBackground(farmAnimals, Position, BackgroundTop, BackgroundMiddle, BackgroundBottom);
-            //Drawer.DrawStrings(farmAnimals, Position);
         }
 
         private void OnButtonPressed(object sender, ButtonPressedEventArgs e)

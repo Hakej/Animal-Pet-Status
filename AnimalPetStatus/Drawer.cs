@@ -19,42 +19,43 @@ namespace AnimalPetStatus
             _spriteFont = spriteFont;
         }
 
-        public void DrawString(string stringToDraw, Vector2 position)
+        public void DrawString(string text, Vector2 position)
         {
-            _spriteBatch.DrawString(_spriteFont, stringToDraw, position, Color.White);
+            _spriteBatch.DrawString(_spriteFont, text, position);
         }
 
-        public void DrawStrings(IEnumerable<string> stringsToDraw, Vector2 position, int offset)
+        public void DrawStringsInRectangle(IEnumerable<string> texts, Rectangle rectangle, Alignment alignment = Alignment.Center)
         {
-            var localRectangle = new Rectangle((int)position.X, (int)position.Y, 160, 25);
+            var offset = rectangle.Height / texts.Count();
+            var currentRectangle = rectangle;
 
-            foreach (var s in stringsToDraw)
+            foreach (var t in texts)
             {
-                DrawStringAligned(s, localRectangle, Alignment.Center);
+                DrawStringAligned(t, currentRectangle, alignment);
 
-                localRectangle.Y += offset;
+                currentRectangle.Y += offset;
             }
         }
 
-        public void DrawStringsWithBackground(IEnumerable<string> stringsToDraw, Vector2 position, Texture2D backgroundTop, Texture2D backgroundMiddle, Texture2D backgroundBottom)
+        public void DrawStringsWithBackground(IEnumerable<string> texts, Vector2 position, Texture2D backgroundTop, Texture2D backgroundMiddle, Texture2D backgroundBottom)
         {
-            _spriteBatch.Draw(backgroundTop, position, Color.White);
+            _spriteBatch.Draw(backgroundTop, position);
 
             var middlePosition = position;
-            middlePosition.Y += backgroundTop.Height;
+            middlePosition.Y += backgroundTop.Height;   
 
             var drawingRectangle = new Rectangle((int)middlePosition.X, (int)middlePosition.Y, backgroundMiddle.Width, backgroundMiddle.Height);
 
-            foreach (var s in stringsToDraw)
+            foreach (var t in texts)
             {
-                _spriteBatch.Draw(backgroundMiddle, drawingRectangle, Color.White);
+                _spriteBatch.Draw(backgroundMiddle, drawingRectangle);
 
-                DrawStringAligned(s, drawingRectangle, Alignment.Center);
+                DrawStringAligned(t, drawingRectangle, Alignment.Center);
 
                 drawingRectangle.Y += backgroundMiddle.Height;
             }
 
-            _spriteBatch.Draw(backgroundBottom, drawingRectangle, Color.White);
+            _spriteBatch.Draw(backgroundBottom, drawingRectangle);
         }
 
         [Flags]
@@ -78,7 +79,7 @@ namespace AnimalPetStatus
             if (align.HasFlag(Alignment.Bottom))
                 origin.Y -= bounds.Height / 2 - size.Y / 2;
 
-            _spriteBatch.DrawString(_spriteFont, text, pos, Color.White, 0, origin, 1, SpriteEffects.None, 0);
+            _spriteBatch.DrawString(_spriteFont, text, pos, origin);
         }
     }
 }
