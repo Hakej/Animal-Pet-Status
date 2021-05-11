@@ -69,6 +69,9 @@ namespace AnimalPetStatus
             if (!Show)
                 return;
 
+            if (WereAllAnimalsPetToday)
+                return;
+
             var notPetAnimals = Game1.getFarm().getAllFarmAnimals()
                 .Where(a => !a.wasPet)
                 .OrderBy(a => a.Name);
