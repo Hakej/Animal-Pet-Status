@@ -26,7 +26,7 @@ namespace AnimalPetStatus
             _spriteBatch.DrawString(_spriteFont, stringToDraw, position, Color.White);
         }
 
-        public void DrawStrings(string[] stringsToDraw, Vector2 position)
+        public void DrawStrings(IEnumerable<string> stringsToDraw, Vector2 position)
         {
             var localPosition = position;
 

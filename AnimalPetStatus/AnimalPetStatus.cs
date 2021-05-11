@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -35,9 +36,11 @@ namespace AnimalPetStatus
             if (!Show)
                 return;
 
-            string[] strings = { "One", "Two", "Three" };
+            var farmAnimals = Game1.getFarm().getAllFarmAnimals()
+                .Where(a => !a.wasPet)
+                .Select(a => a.Name);
 
-            Drawer.DrawStrings(strings, Position);
+            Drawer.DrawStrings(farmAnimals, Position);
         }
 
         private void OnButtonPressed(object sender, ButtonPressedEventArgs e)
@@ -47,8 +50,6 @@ namespace AnimalPetStatus
 
             if (e.Button == ToggleButton)
                 Show = !Show;
-
-            this.Monitor.Log($"{Game1.player.Name} pressed {e.Button}.", LogLevel.Debug);
         }
     }
 }
