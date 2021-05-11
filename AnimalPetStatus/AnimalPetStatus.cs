@@ -12,16 +12,19 @@ namespace AnimalPetStatus
     public class AnimalPetStatus : Mod
     {
         // MOD SETTINGS
-        public bool Show = true;
+        public bool IsActive;
         public bool IsMoving = false;
-        public SButton ToggleButton = SButton.P;
-        public SButton MoveButton = SButton.L;
-        public Vector2 Position = new Vector2(10, 10);
+        public Vector2 Position;
+
+        // INPUT
+        public SButton ToggleButton;
+        public SButton MoveButton;
 
         // TEXT
         public Color textColor = Color.Black;
 
         // NEEDED CLASSES
+        public ModConfig Config;
         public Drawer Drawer;
 
         // BACKGROUND
@@ -33,6 +36,13 @@ namespace AnimalPetStatus
 
         public override void Entry(IModHelper helper)
         {
+            Config = Helper.ReadConfig<ModConfig>();
+
+            Position = Config.Position;
+            IsActive = Config.IsActive;
+            ToggleButton = Config.ToggleButton;
+            MoveButton = Config.MoveButton;
+
             BackgroundTop = helper.Content.Load<Texture2D>("Assets/background_top.png", ContentSource.ModFolder);
             BackgroundMiddle = helper.Content.Load<Texture2D>("Assets/background_middle.png", ContentSource.ModFolder);
             BackgroundBottom = helper.Content.Load<Texture2D>("Assets/background_bottom.png", ContentSource.ModFolder);
@@ -47,13 +57,15 @@ namespace AnimalPetStatus
 
         private void CursorMoved(object sender, CursorMovedEventArgs e)
         {
-            if (!Show)
+            if (!IsActive)
                 return;
 
             if (!IsMoving)
                 return;
 
-            Position = e.NewPosition.AbsolutePixels;
+            Position = e.NewPosition.ScreenPixels;
+            Config.Position = Position;
+            Helper.WriteConfig(Config);
         }
 
         private void DayStarted(object sender, DayStartedEventArgs e)
@@ -85,7 +97,7 @@ namespace AnimalPetStatus
 
         private void OnRenderedHud(object sender, RenderedHudEventArgs e)
         {
-            if (!Show)
+            if (!IsActive)
                 return;
 
             if (WereAllAnimalsPetToday)
@@ -104,7 +116,11 @@ namespace AnimalPetStatus
                 return;
 
             if (e.Button == ToggleButton)
-                Show = !Show;
+            {
+                IsActive = !IsActive;
+                Config.IsActive = IsActive;
+                Helper.WriteConfig(Config);
+            }
 
             if (e.Button == MoveButton)
                 IsMoving = true;
