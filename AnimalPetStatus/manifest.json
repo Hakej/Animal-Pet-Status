@@ -1,7 +1,7 @@
 ﻿{
   "Name": "Animal Pet Status",
   "Author": "Hakej",
-  "Version": "1.0.0",
+  "Version": "1.0.1",
   "Description": "Shows which animal have you already pet",
   "UniqueID": "hakej.animalpetstatus",
   "EntryDll": "AnimalPetStatus.dll",

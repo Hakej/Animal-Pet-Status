@@ -11,16 +11,16 @@ namespace AnimalPetStatus
 {
     public class AnimalPetStatus : Mod
     {
-        // SHOW SETTINGS
+        // MOD SETTINGS
         public bool Show = true;
         public SButton ToggleButton = SButton.P;
+        public Vector2 Position = new Vector2(10, 10);
+
+        // TEXT
+        public Color textColor = Color.Black;
 
         // NEEDED CLASSES
         public Drawer Drawer;
-
-        // TEXT
-        public Vector2 Position = new Vector2(10, 10);
-        public const int MULTIPLE_STRINGS_OFFSET = 30;
 
         // BACKGROUND
         public Texture2D BackgroundTop;
@@ -52,7 +52,7 @@ namespace AnimalPetStatus
                 .Where(a => !a.wasPet)
                 .Select(a => a.Name);
 
-            Drawer.DrawStringsWithBackground(farmAnimals, Position, BackgroundTop, BackgroundMiddle, BackgroundBottom);
+            Drawer.DrawStringsWithBackground(farmAnimals, Position, textColor, BackgroundTop, BackgroundMiddle, BackgroundBottom);
         }
 
         private void OnButtonPressed(object sender, ButtonPressedEventArgs e)

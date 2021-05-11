@@ -24,20 +24,20 @@ namespace AnimalPetStatus
             _spriteBatch.DrawString(_spriteFont, text, position);
         }
 
-        public void DrawStringsInRectangle(IEnumerable<string> texts, Rectangle rectangle, Alignment alignment = Alignment.Center)
+        public void DrawStringsInRectangle(IEnumerable<string> texts, Rectangle rectangle, Color color, Alignment alignment = Alignment.Center)
         {
             var offset = rectangle.Height / texts.Count();
             var currentRectangle = rectangle;
 
             foreach (var t in texts)
             {
-                DrawStringAligned(t, currentRectangle, alignment);
+                DrawStringAligned(t, currentRectangle, color, alignment);
 
                 currentRectangle.Y += offset;
             }
         }
 
-        public void DrawStringsWithBackground(IEnumerable<string> texts, Vector2 position, Texture2D backgroundTop, Texture2D backgroundMiddle, Texture2D backgroundBottom)
+        public void DrawStringsWithBackground(IEnumerable<string> texts, Vector2 position, Color color, Texture2D backgroundTop, Texture2D backgroundMiddle, Texture2D backgroundBottom)
         {
             _spriteBatch.Draw(backgroundTop, position);
 
@@ -50,7 +50,7 @@ namespace AnimalPetStatus
             {
                 _spriteBatch.Draw(backgroundMiddle, drawingRectangle);
 
-                DrawStringAligned(t, drawingRectangle, Alignment.Center);
+                DrawStringAligned(t, drawingRectangle, color, Alignment.Center);
 
                 drawingRectangle.Y += backgroundMiddle.Height;
             }
@@ -61,7 +61,7 @@ namespace AnimalPetStatus
         [Flags]
         public enum Alignment { Center = 0, Left = 1, Right = 2, Top = 4, Bottom = 8 }
 
-        private void DrawStringAligned(string text, Rectangle bounds, Alignment align)
+        private void DrawStringAligned(string text, Rectangle bounds, Color color, Alignment align)
         {
             Vector2 size = _spriteFont.MeasureString(text);
             Vector2 pos = new Vector2(bounds.Center.X, bounds.Center.Y);
@@ -79,7 +79,7 @@ namespace AnimalPetStatus
             if (align.HasFlag(Alignment.Bottom))
                 origin.Y -= bounds.Height / 2 - size.Y / 2;
 
-            _spriteBatch.DrawString(_spriteFont, text, pos, origin);
+            _spriteBatch.DrawString(_spriteFont, text, pos, color, origin);
         }
     }
 }
