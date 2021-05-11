@@ -77,6 +77,9 @@ namespace AnimalPetStatus
         {
             if (e.Button.IsActionButton())
             {
+                if (!DoesFarmHasAnyAnimals())
+                    return;
+
                 if (!IsAnyAnimalNotPet() && !WereAllAnimalsPetToday)
                 {
                     WereAllAnimalsPetToday = true;
@@ -103,6 +106,9 @@ namespace AnimalPetStatus
             if (WereAllAnimalsPetToday)
                 return;
 
+            if (!DoesFarmHasAnyAnimals())
+                return;
+
             var notPetAnimals = Game1.getFarm().getAllFarmAnimals()
                 .Where(a => !a.wasPet)
                 .OrderBy(a => a.Name);
@@ -126,7 +132,10 @@ namespace AnimalPetStatus
                 IsMoving = true;
         }
 
-
+        private bool DoesFarmHasAnyAnimals()
+        {
+            return Game1.getFarm().getAllFarmAnimals().Count() != 0;
+        }
         private bool IsAnyAnimalNotPet()
         {
             return Game1.getFarm().getAllFarmAnimals().Any(a => !a.wasPet);
