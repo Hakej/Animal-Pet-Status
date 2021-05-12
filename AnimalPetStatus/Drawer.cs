@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using StardewValley;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,10 @@ namespace AnimalPetStatus
 {
     public class Drawer
     {
+        private const int BORDER_OFFSET = 30;
+        private const int ANIMAL_ICON_SIZE = 25;
+        private const int SPACE_BETWEEN_ICON_AND_NAME = 5;
+
         private static SpriteBatch _spriteBatch;
         private static SpriteFont _spriteFont;
 
@@ -56,6 +61,68 @@ namespace AnimalPetStatus
             }
 
             _spriteBatch.Draw(backgroundBottom, drawingRectangle);
+        }
+
+        public void DrawAnimalNamesWithBackground(IEnumerable<FarmAnimal> animals, Vector2 position, Texture2D backgroundTop, Texture2D backgroundMiddle, Texture2D backgroundBottom)
+        {
+            _spriteBatch.Draw(backgroundTop, position);
+
+            var middlePosition = position;
+            middlePosition.Y += backgroundTop.Height;
+
+            var drawingRectangle = new Rectangle((int)middlePosition.X, (int)middlePosition.Y, backgroundMiddle.Width, backgroundMiddle.Height);
+
+            foreach (var a in animals)
+            {
+                _spriteBatch.Draw(backgroundMiddle, drawingRectangle);
+
+                var s = a.Sprite;
+                var texture = s.Texture;
+                var iconDrawingRectangle = new Rectangle(drawingRectangle.X + BORDER_OFFSET, drawingRectangle.Y, ANIMAL_ICON_SIZE, ANIMAL_ICON_SIZE);
+
+                SpriteEffects spriteEffect;
+
+                if (s.textureUsesFlippedRightForLeft && a.FacingDirection == 3)
+                {
+                    spriteEffect = SpriteEffects.FlipHorizontally;    
+                }
+                else
+                {
+                    spriteEffect = SpriteEffects.None;
+                }
+
+                _spriteBatch.Draw(texture,
+                    iconDrawingRectangle,
+                    s.SourceRect,
+                    Color.White, 
+                    0, 
+                    new Vector2(0, 0),
+                    spriteEffect,
+                    0);
+
+                drawingRectangle.X += BORDER_OFFSET + ANIMAL_ICON_SIZE + SPACE_BETWEEN_ICON_AND_NAME;
+
+                var color = GetTextColorForAnimal(a);
+                DrawStringAligned(a.Name, drawingRectangle, color, Alignment.Left);
+
+                drawingRectangle.X -= BORDER_OFFSET + ANIMAL_ICON_SIZE + SPACE_BETWEEN_ICON_AND_NAME;
+
+                drawingRectangle.Y += backgroundMiddle.Height;
+            }
+
+            _spriteBatch.Draw(backgroundBottom, drawingRectangle);
+        }
+
+        private Color GetTextColorForAnimal(FarmAnimal animal)
+        {
+            if (animal.currentLocation == Game1.player.currentLocation)
+            {
+                return Color.Black;
+            }
+            else
+            {
+                return Color.Gray;
+            }            
         }
 
         [Flags]

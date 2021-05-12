@@ -12,14 +12,19 @@ namespace AnimalPetStatus
     public class AnimalPetStatus : Mod
     {
         // MOD SETTINGS
-        public bool Show = true;
-        public SButton ToggleButton = SButton.P;
-        public Vector2 Position = new Vector2(10, 10);
+        public bool IsActive;
+        public bool IsMoving = false;
+        public Vector2 Position;
+
+        // INPUT
+        public SButton ToggleButton;
+        public SButton MoveButton;
 
         // TEXT
         public Color textColor = Color.Black;
 
         // NEEDED CLASSES
+        public ModConfig Config;
         public Drawer Drawer;
 
         // BACKGROUND
@@ -27,8 +32,17 @@ namespace AnimalPetStatus
         public Texture2D BackgroundMiddle;
         public Texture2D BackgroundBottom;
 
+        public bool WereAllAnimalsPetToday = false;
+
         public override void Entry(IModHelper helper)
         {
+            Config = Helper.ReadConfig<ModConfig>();
+
+            Position = Config.Position;
+            IsActive = Config.IsActive;
+            ToggleButton = Config.ToggleButton;
+            MoveButton = Config.MoveButton;
+
             BackgroundTop = helper.Content.Load<Texture2D>("Assets/background_top.png", ContentSource.ModFolder);
             BackgroundMiddle = helper.Content.Load<Texture2D>("Assets/background_middle.png", ContentSource.ModFolder);
             BackgroundBottom = helper.Content.Load<Texture2D>("Assets/background_bottom.png", ContentSource.ModFolder);
@@ -36,6 +50,53 @@ namespace AnimalPetStatus
             helper.Events.Input.ButtonPressed += OnButtonPressed;
             helper.Events.Display.RenderedHud += OnRenderedHud;
             helper.Events.GameLoop.GameLaunched += GameLaunched;
+            helper.Events.GameLoop.DayStarted += DayStarted;
+            helper.Events.Input.ButtonReleased += OnButtonReleased;
+            helper.Events.Input.CursorMoved += CursorMoved;
+        }
+
+        private void CursorMoved(object sender, CursorMovedEventArgs e)
+        {
+            if (!Context.IsWorldReady)
+                return;
+
+            if (!IsActive)
+                return;
+
+            if (!IsMoving)
+                return;
+
+            Position = e.NewPosition.ScreenPixels;
+            Config.Position = Position;
+            Helper.WriteConfig(Config);
+        }
+
+        private void DayStarted(object sender, DayStartedEventArgs e)
+        {
+            WereAllAnimalsPetToday = false;
+        }
+
+        private void OnButtonReleased(object sender, ButtonReleasedEventArgs e)
+        {
+            if (!Context.IsWorldReady)
+                return;
+
+            if (e.Button.IsActionButton())
+            {
+                if (!DoesFarmHasAnyAnimals())
+                    return;
+
+                if (!IsAnyAnimalNotPet() && !WereAllAnimalsPetToday)
+                {
+                    WereAllAnimalsPetToday = true;
+                    Notificator.NotifyWithJingle();
+                }
+            }
+
+            if (e.Button == MoveButton)
+            {
+                IsMoving = false;
+            }
         }
 
         private void GameLaunched(object sender, GameLaunchedEventArgs e)
@@ -45,14 +106,26 @@ namespace AnimalPetStatus
 
         private void OnRenderedHud(object sender, RenderedHudEventArgs e)
         {
-            if (!Show)
+            if (!Context.IsWorldReady)
                 return;
 
-            var farmAnimals = Game1.getFarm().getAllFarmAnimals()
-                .Where(a => !a.wasPet)
-                .Select(a => a.Name);
+            if (!IsActive)
+                return;
 
-            Drawer.DrawStringsWithBackground(farmAnimals, Position, textColor, BackgroundTop, BackgroundMiddle, BackgroundBottom);
+            if (WereAllAnimalsPetToday)
+                return;
+
+            if (!DoesFarmHasAnyAnimals())
+                return;
+
+            if (!Game1.player.currentLocation.isFarm)
+                return;
+
+            var notPetAnimals = Game1.getFarm().getAllFarmAnimals()
+                .Where(a => !a.wasPet)
+                .OrderBy(a => a.Name);
+
+            Drawer.DrawAnimalNamesWithBackground(notPetAnimals, Position, BackgroundTop, BackgroundMiddle, BackgroundBottom);
         }
 
         private void OnButtonPressed(object sender, ButtonPressedEventArgs e)
@@ -61,7 +134,23 @@ namespace AnimalPetStatus
                 return;
 
             if (e.Button == ToggleButton)
-                Show = !Show;
+            {
+                IsActive = !IsActive;
+                Config.IsActive = IsActive;
+                Helper.WriteConfig(Config);
+            }
+
+            if (e.Button == MoveButton)
+                IsMoving = true;
+        }
+
+        private bool DoesFarmHasAnyAnimals()
+        {
+            return Game1.getFarm().getAllFarmAnimals().Count() != 0;
+        }
+        private bool IsAnyAnimalNotPet()
+        {
+            return Game1.getFarm().getAllFarmAnimals().Any(a => !a.wasPet);
         }
     }
 }
