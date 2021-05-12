@@ -57,6 +57,9 @@ namespace AnimalPetStatus
 
         private void CursorMoved(object sender, CursorMovedEventArgs e)
         {
+            if (!Context.IsWorldReady)
+                return;
+
             if (!IsActive)
                 return;
 
@@ -75,6 +78,9 @@ namespace AnimalPetStatus
 
         private void OnButtonReleased(object sender, ButtonReleasedEventArgs e)
         {
+            if (!Context.IsWorldReady)
+                return;
+
             if (e.Button.IsActionButton())
             {
                 if (!DoesFarmHasAnyAnimals())
@@ -100,6 +106,9 @@ namespace AnimalPetStatus
 
         private void OnRenderedHud(object sender, RenderedHudEventArgs e)
         {
+            if (!Context.IsWorldReady)
+                return;
+
             if (!IsActive)
                 return;
 
