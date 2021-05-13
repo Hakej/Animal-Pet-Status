@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -11,6 +12,9 @@ namespace AnimalPetStatus
 {
     public class AnimalPetStatus : Mod
     {
+        // CONSTANTS
+        public const string ASSETS_PATH = "Assets";
+
         // MOD SETTINGS
         public bool IsActive;
         public bool IsMoving = false;
@@ -43,9 +47,9 @@ namespace AnimalPetStatus
             ToggleButton = Config.ToggleButton;
             MoveButton = Config.MoveButton;
 
-            BackgroundTop = helper.Content.Load<Texture2D>("Assets/background_top.png", ContentSource.ModFolder);
-            BackgroundMiddle = helper.Content.Load<Texture2D>("Assets/background_middle.png", ContentSource.ModFolder);
-            BackgroundBottom = helper.Content.Load<Texture2D>("Assets/background_bottom.png", ContentSource.ModFolder);
+            BackgroundTop = helper.Content.Load<Texture2D>(Path.Combine(ASSETS_PATH, "background_top.png"), ContentSource.ModFolder);
+            BackgroundMiddle = helper.Content.Load<Texture2D>(Path.Combine(ASSETS_PATH, "background_middle.png"), ContentSource.ModFolder);
+            BackgroundBottom = helper.Content.Load<Texture2D>(Path.Combine(ASSETS_PATH, "background_bottom.png"), ContentSource.ModFolder);
 
             helper.Events.Input.ButtonPressed += OnButtonPressed;
             helper.Events.Display.RenderedHud += OnRenderedHud;
